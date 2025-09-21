@@ -1,5 +1,9 @@
+// Path: prisma/schema.prisma
+
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // This line is essential for Render deployment
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
@@ -18,18 +22,18 @@ model User {
 }
 
 model Patient {
-  id       Int      @id @default(autoincrement())
+  id       Int                    @id @default(autoincrement())
   name     String
   age      Int
   userId   Int
-  user     User     @relation(fields: [userId], references: [id])
+  user     User                   @relation(fields: [userId], references: [id])
   mappings PatientDoctorMapping[]
 
   @@map("patients")
 }
 
 model Doctor {
-  id             Int      @id @default(autoincrement())
+  id             Int                    @id @default(autoincrement())
   name           String
   specialization String
   mappings       PatientDoctorMapping[]
@@ -41,8 +45,9 @@ model PatientDoctorMapping {
   id        Int     @id @default(autoincrement())
   patientId Int
   doctorId  Int
-  patient   Patient @relation(fields: [patientId], references: [id])
-  doctor    Doctor  @relation(fields: [doctorId], references: [id])
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor    Doctor  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
+  @@unique([patientId, doctorId])
   @@map("patient_doctor_mappings")
 }
